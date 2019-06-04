@@ -1,8 +1,10 @@
-# cp/_parser/_cli
+# cp_parser_cli
 * Make sure there exists a config file.
 
 $ `cd ~/.config`
+
 $ `mkdir parser`
+
 $ `touch parser.json`
 
 * This is how `parser.json` should look like. Add your template destination like shown below.
