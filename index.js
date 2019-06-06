@@ -29,11 +29,13 @@ app.post('/', (req, res) => {
    const data = req.body; // main body
    // console.log(colors.debug(`${JSON.stringify(data, null, 4)}`)); // show main json body
 
-   var online_judge = url.parse(data.url).hostname;
-   var contest_name = data.group.split('-').join('').split(' ').join('_');
-   var problem_name = data.name.split('-').join('').split(' ').join('_');
-   var test_count = data.tests.length;
-   var final_path = online_judge + '/' + contest_name + '/' + problem_name
+   var online_judge = url.parse(data.url).hostname,
+      contest_name = data.group.split('-').join('').split(' ').join('_'),
+      problem_name = data.name.split('-').join('').split(' ').join('_'),
+      test_count = data.tests.length,
+      final_path = online_judge + '/' + contest_name + '/' + problem_name,
+      time_limit = parseFloat(data.timeLimit) / 1000.0,
+      mem_limit = parseInt(data.memoryLimit);
 
    // console.log(colors.debug(`${online_judge}`));
 
@@ -46,7 +48,7 @@ app.post('/', (req, res) => {
    }
    console.log('\n');
    console.log(colors.info.bold(`Downloading problem : ${problem_name} ...`));
-   console.log(colors.info.italic(`${test_count} sample test case(s) found`));
+   console.log(colors.info.italic(`${test_count} sample test case(s) found, time limit : ${time_limit}s, memory : ${mem_limit}MB`));
 
    // console.log(colors.debug(`${final_path}`));
 
@@ -68,8 +70,8 @@ app.post('/', (req, res) => {
    // pconfig json object to be read by tester
    var pconfig_obj = {
       test_count : test_count,
-      time_limit : parseFloat(data.timeLimit) / 1000.0,
-      mem_limit : parseInt(data.memoryLimit) * 1000
+      time_limit : time_limit,
+      mem_limit : mem_limit * 1000
    };
 
    //convert json to string and write into the file
