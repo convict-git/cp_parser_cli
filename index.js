@@ -43,7 +43,7 @@ app.post('/', (req, res) => {
    //
    if (!echo_header_done) {
       echo_header_done = true;
-      console.log(colors.display(` ======== Welcome to cp_parser_cli ======== `));
+      console.log(colors.display(`==${Date()}==`));
       console.log(colors.info.underline.bold(` *** Round name : ${contest_name} (${online_judge}) *** `));
    }
    console.log('\n');
@@ -127,4 +127,5 @@ app.listen(port, err => {
       process.exit(1);
    }
    console.log(colors.display.italic(`Listening on port ${port}\n`));
+   console.log(colors.display(` ======== Welcome to cp_parser_cli ======== `));
 });
