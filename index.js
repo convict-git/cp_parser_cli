@@ -30,8 +30,8 @@ app.post('/', (req, res) => {
    // console.log(colors.debug(`${JSON.stringify(data, null, 4)}`)); // show main json body
 
    var online_judge = url.parse(data.url).hostname,
-      contest_name = data.group.split(/[\s-]+/).join('_');
-      problem_name = data.name.split(/[\s-]+/).join('_');
+      contest_name = data.group.split(/[\s-]+/).join('_').split('\'').join('');
+      problem_name = data.name.split(/[\s-]+/).join('_').split('\'').join('');
       test_count = data.tests.length,
       final_path = online_judge + '/' + contest_name + '/' + problem_name,
       time_limit = parseFloat(data.timeLimit) / 1000.0,
