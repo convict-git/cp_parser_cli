@@ -1,19 +1,19 @@
 //@authors : Priyanshu Shrivastav, Shruti Umat, Abhishek Saran
 
-const app = require('express')(),
+const app        = require('express')(),
       bodyParser = require('body-parser'),
-      fs = require('file-system'),
-      url = require('url'),
-      sh = require('shelljs'),
-      colors = require('colors'),
-      os = require('os');
+      fs         = require('file-system'),
+      url        = require('url'),
+      sh         = require('shelljs'),
+      colors     = require('colors'),
+      os         = require('os');
 
 colors.setTheme({
-   debug : 'cyan',
+   debug   : 'cyan',
    display : 'white',
-   error : 'red',
-   info : 'green',
-   warn : 'yellow'
+   error   : 'red',
+   info    : 'green',
+   warn    : 'yellow'
 });
 
 const user_name = os.userInfo().username.toString(); // get the user_name from os for /home/${user_name}/...
