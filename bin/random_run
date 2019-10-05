@@ -44,15 +44,16 @@ done
 
 for ((i = 1; ; ++i)); do
 	./gen.out $i > $INPUT$test_case
-	if timeout 3 ./a.out < $INPUT$test_case > $OUTPUT$test_case ; then
+	if timeout 3 /usr/bin/time --format="\t(%e sec, %M kb)" 2> time_err ./a.out < $INPUT$test_case > $OUTPUT$test_case ; then
 		./tester.out < $INPUT$test_case  > $EXPECTED$test_case
 		if diff --brief --ignore-trailing-space $OUTPUT$test_case $EXPECTED$test_case >> errlg; then  #do a diff on output and my_output
-			echo -e "\e[1m\e[32m\tSample test $i: Accepted\e[0m"
+			echo -en "\e[1m\e[32m\tSample test $i: Accepted\e[0m"
+         cat time_err
 			rm -rf errlg
 		else
-         echo "New test case added: input$test_case"
-			echo -e "\e[1m\e[31m\tSample test $i: Wrong Answer\e[0m"
-         echo -e "INPUT : "
+			echo -en "\e[1m\e[31m\tSample test $i: Wrong Answer\e[0m"
+         cat time_err
+         echo -e "\nINPUT : "
 			cat $INPUT$test_case
          echo -e " "
          echo -e "EXPECTED : "
@@ -60,11 +61,23 @@ for ((i = 1; ; ++i)); do
          echo -e " "
          echo -e "OUTPUT : "
 			cat $OUTPUT$test_case
+
+         echo
+         read new_test_case
+         echo -en "Do you want to add this test case? (y/n): "
+         if [ "$new_test_case" = "y" ]; then
+            echo "New test case added: input$test_case"
+            rm -rf time_err
+            exit
+         fi
+         rm -rf $INPUT$test_case $EXPECTED$test_case $OUTPUT$test_case time_err
 			exit
 		fi
 	else
-		echo -e "\e[91m\e[1m\tSample test $i: Time Limit Exceeded! \e[0mAllowed : 1s\e[0m"
-		cat $INPUT
+		echo -en "\e[91m\e[1m\tSample test $i: Time Limit Exceeded! \e[0mAllowed : 1s\e[0m"
+      cat time_err
+		cat $INPUT$test_case
+      rm -rf $INPUT$test_case $EXPECTED$test_case $OUTPUT$test_case time_err
 		exit
 	fi
 done
