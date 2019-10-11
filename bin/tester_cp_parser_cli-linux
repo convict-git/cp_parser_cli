@@ -46,6 +46,7 @@ elif [ "${FILE##*.}" = "java" ]; then # java file
    fi
 elif [ "${FILE##*.}" = "py" ]; then  # python file
    RUN_VAR="python3 $1"
+   flag=1
 fi
 
 if [ "$flag" = "0" ]; then # Check if compilation failed
