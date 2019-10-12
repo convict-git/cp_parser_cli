@@ -1,4 +1,6 @@
 #!/bin/bash
+# Tester for cpp, java, python
+
 #1. It compiles your cpp file and catches many bugs there itself, eg. Variable shadowing, integer overflow, float comparison et cetera
 #2. If input present in the format given in point 5 then it runs the program on it otherwise you can manually insert the input
 #3. It checks for Time limit that you pass as the second argument
@@ -6,10 +8,6 @@
 #5. There should be input1, input2, ... files present to take them as input
 #6. If you have the expected output store it as output1, output2, ...
 #7. I'll comment the code soon for easier understanding. Till then use as mentioned below
-#usage
-# $ compile filename.cpp time(in sec)
-#example
-# $ compile main.cpp 1
 
 FILE=$1
 RUN_VAR=""
