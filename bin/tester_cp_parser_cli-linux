@@ -1,6 +1,4 @@
 #!/bin/bash
-# Tester for cpp, java, python
-
 #1. It compiles your cpp file and catches many bugs there itself, eg. Variable shadowing, integer overflow, float comparison et cetera
 #2. If input present in the format given in point 5 then it runs the program on it otherwise you can manually insert the input
 #3. It checks for Time limit that you pass as the second argument
@@ -8,6 +6,10 @@
 #5. There should be input1, input2, ... files present to take them as input
 #6. If you have the expected output store it as output1, output2, ...
 #7. I'll comment the code soon for easier understanding. Till then use as mentioned below
+#usage
+# $ compile filename.cpp time(in sec)
+#example
+# $ compile main.cpp 1
 
 FILE=$1
 RUN_VAR=""
@@ -27,6 +29,7 @@ if [ "${FILE##*.}" = "cpp" ]; then   # cpp file
       fi
    elif [ "$3" = "C" ]; then
       rm -rf ./a.out
+      echo -e "\e[1mCompiling ... \e[0m"
       if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $1; then
          flag=1
       fi
@@ -36,6 +39,7 @@ if [ "${FILE##*.}" = "cpp" ]; then   # cpp file
 elif [ "${FILE##*.}" = "java" ]; then # java file
    RUN_VAR="java -enableassertions Main"
    if [ "$3" = "C" ]; then
+      echo -e "\e[1mCompiling ... \e[0m"
       if javac $1; then
          flag=1
       fi
@@ -149,3 +153,4 @@ echo -e "____________________________________________"
 #echo -e "\t9)\e[0m\e[38;5;34m matrix \e[1m x n or n x m??\e[0m \e[91mprinting the white spaces??\e[0m"
 #echo -e "\n\t    \e[4m\e[1m\e[37mNOT YET?? TRY different or add something new here!!!\e[91m\e[0m"
 #echo -e "\t\e[31m*************************mr.convict************************\e[0m"
+
