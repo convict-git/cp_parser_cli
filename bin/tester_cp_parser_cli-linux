@@ -11,7 +11,11 @@
 #example
 # $ compile main.cpp 1
 
+clear
+clear
+
 FILE=$1
+echo "${FILE##*.}"
 RUN_VAR=""
 flag=0
 
@@ -24,13 +28,13 @@ if [ "${FILE##*.}" = "cpp" ]; then   # cpp file
    if [ "$3" = "CD" ]; then
       rm -rf ./a.out
       echo -e "\e[1m\e[91mCompiling with debugging flags ( -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 ) ... \e[0m"
-      if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $1; then
+      if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $FILE; then
          flag=1
       fi
    elif [ "$3" = "C" ]; then
       rm -rf ./a.out
       echo -e "\e[1mCompiling ... \e[0m"
-      if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $1; then
+      if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $FILE; then
          flag=1
       fi
    else
@@ -40,15 +44,23 @@ elif [ "${FILE##*.}" = "java" ]; then # java file
    RUN_VAR="java -enableassertions Main"
    if [ "$3" = "C" ]; then
       echo -e "\e[1mCompiling ... \e[0m"
-      if javac $1; then
+      if javac $FILE; then
          flag=1
       fi
    else
       flag=1
    fi
 elif [ "${FILE##*.}" = "py" ]; then  # python file
-   RUN_VAR="python3 $1"
+   RUN_VAR="python3 $FILE"
    flag=1
+elif [ "${FILE##*.}" = "hs" ]; then # haskell file
+   RUN_VAR="./${FILE%.*}"
+   rm -rf $RUN_VAR
+   echo -e "\e[1mCompiling ... \e[0m"
+   if ghc --make $FILE; then
+      echo $FILE
+      flag=1
+   fi
 fi
 
 if [ "$flag" = "0" ]; then # Check if compilation failed
