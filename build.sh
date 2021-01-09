@@ -34,7 +34,7 @@ mkdir -p bin
 
 if pkg --targets node10-linux-x64 index.js -o ./bin/cp-parse;
 then
-   echo -e "\e[32Build successfully.\e[0m"
+   echo -e "\e[32mBuild successfully.\e[0m"
 else
    echo -e "\e[31mBuild failed\e[0m"
    exit
