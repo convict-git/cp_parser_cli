@@ -15,19 +15,13 @@ else
    fi
 fi
 
-echo -e "Checking if node pkg is installed.."
-if npm list -g | grep pkg;
+echo -e "Installing npm dependencies"
+if npm install;
 then
-   echo -e "\e[32mpkg was found\e[0m"
+   echo -e "\e[32mNpm dependencies were installed\e[0m"
 else
-   echo -e "\e[31mpkg not found. Installing node pkg.\e[0m"
-   if sudo npm install -g pkg;
-   then
-      echo -e "\e[32mpkg installed\e[0m"
-   else
-      echo -e "\e[31mError installing node pkg\e[0m"
-      exit
-   fi
+   echo -e "\e[31mError installing dependencies\e[0m"
+   exit
 fi
 
 mkdir -p bin
