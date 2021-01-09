@@ -30,19 +30,26 @@ else
    fi
 fi
 
-if pkg --targets node10-linux-x64 index.js;
+mkdir -p bin
+
+if pkg --targets node10-linux-x64 index.js -o ./bin/cp-parse;
 then
-   echo -e "\e[32Build uccessfully.\e[0m"
+   echo -e "\e[32Build successfully.\e[0m"
 else
    echo -e "\e[31mBuild failed\e[0m"
    exit
 fi
 
-sudo cp -v bin/compile_cp_parser_cli-linux /usr/bin/cp-compile
-sudo cp -v bin/cp_parser_cli-linux /usr/bin/cp-parse
-sudo cp -v bin/tester_cp_parser_cli-linux /usr/bin/cp-tester
-sudo chmod +x /usr/bin/cp-compile
-sudo chmod +x /usr/bin/cp-parse
-sudo chmod +x /usr/bin/cp-tester
+echo -e "Copying all scripts and parser to /usr/bin"
+sudo cp -v ./bin/cp-parse /usr/bin/cp-parse
+sudo cp -v ./scripts/cp-compile /usr/bin/cp-compile
+sudo cp -v ./scripts/cp-random /usr/bin/cp-random
+sudo cp -v ./scripts/cp-tester /usr/bin/cp-tester
 
+echo -e "Giving executable permissions"
+chmod +x /usr/bin/cp-parse
+chmod +x /usr/bin/cp-compile
+chmod +x /usr/bin/cp-random
+chmod +x /usr/bin/cp-tester
 
+echo -e "\e[32mAll done!\e[0m"

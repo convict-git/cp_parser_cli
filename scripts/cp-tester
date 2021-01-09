@@ -1,0 +1,169 @@
+#!/bin/bash
+# usage cp-tester  <filename> <time in secs>
+# eg. cp-tester main.cpp 3
+# Make sure the input files and output files are in this format
+# input1 output1 input2 output2 ... input10 output10
+# No extension like ".txt" given to input or output files
+
+clear
+clear
+
+#color variables
+Nm="\e[0m"
+FblBgr="$Nm\e[1;30;48;5;76m"
+FgrBbl="$Nm\e[1;40;38;5;76m"
+FblBrd="$Nm\e[6;30;48;5;124m"
+FrdBbl="$Nm\e[1;40;38;5;124m"
+FblBye="$Nm\e[6;30;48;5;202m"
+FyeBbl="$Nm\e[1;40;38;5;202m"
+FbrBbl="$Nm\e[1;40;38;5;136m"
+FblBbr="$Nm\e[1;30;48;5;136m"
+Head="$Nm\e[1;48;5;237m"
+INPUT_NAME=input                    #the input filename string
+OUTPUT_NAME=my_output               #the output filename string
+REALOUTPUT_NAME=output              #the real output filename string
+FILE=$1
+echo "file type is ${FILE##*.}"
+RUN_VAR=""
+flag=0
+testcnt=0
+for test_file in $INPUT_NAME*
+do testcnt=$((testcnt+1)); done
+declare -a LogVarArray=( $(for ((i=0; i <=$((testcnt)); i++)); do echo 0; done) )
+
+ulimit -s 256000 # default mem limit 256 MB
+echo -e "$FblBrd            welcome $FrdBbl mr.convict $FblBrd            $Nm"
+# echo -e "\e[47m            $Nmwelcome \e[1m\e[91mmr.convict$Nm______________"
+
+# Compilations and initializing RUN_VAR
+if [ "${FILE##*.}" = "cpp" ]; then   # cpp file
+	RUN_VAR="./a.out"
+	if [ "$3" = "CD" ]; then
+		rm -rf ./a.out
+		echo -e "\e[1m\e[91mCompiling with debugging flags ( -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 ) ... $Nm"
+		if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $FILE; then
+			flag=1
+		fi
+	elif [ "$3" = "C" ]; then
+		rm -rf ./a.out
+		echo -e "\e[1mCompiling ... $Nm"
+		if g++ -std=gnu++14 -Wall -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $FILE; then
+			flag=1
+		fi
+	else
+		flag=1
+	fi
+elif [ "${FILE##*.}" = "java" ]; then # java file
+	RUN_VAR="java -enableassertions Main"
+	if [ "$3" = "C" ]; then
+		echo -e "\e[1mCompiling ... $Nm"
+		if javac $FILE; then
+			flag=1
+		fi
+	else
+		flag=1
+	fi
+elif [ "${FILE##*.}" = "py" ]; then  # python file
+	RUN_VAR="python3 $FILE"
+	flag=1
+elif [ "${FILE##*.}" = "hs" ]; then # haskell file
+	RUN_VAR="./${FILE%.*}"
+	rm -rf $RUN_VAR
+	echo -e "\e[1mCompiling ... $Nm"
+	if ghc --make $FILE; then
+		echo $FILE
+		flag=1
+	fi
+fi
+
+if [ "$flag" = "0" ]; then # Check if compilation failed
+	echo -e "\e[91m\e[1mCompilation Error!$Nm";
+	read -n 1
+	exit
+else
+	echo -e "\e[38;5;34m\e[1mCompilation Successful!$Nm"
+fi
+
+# Control reaches here iff compilation succesfull
+
+echo -e "$testcnt test cases found!"
+if [ -f "input1" ];                 #if input1 present that means there are input files
+then
+	for ((test_case=1; test_case<=testcnt; test_case++))
+	do
+		# echo -e "\e[0;30;48;5;130m                                            $Nm"
+		echo -e "\n$FblBbr              Sample Test Case $test_case            $Nm"
+		# echo -e "\e[1;30;48;5;130m                                            $Nm"
+		echo -e "$Head               Input File                   $Nm"
+		echo -e "$FbrBbl▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm$Nm"
+		echo -e "$Nm\e[1m"
+		let var=($(wc -c < $INPUT_NAME$test_case))
+		if [ "$var" -gt 800 ] ; then
+			# sed -n 1,10p $INPUT_NAME$test_case
+			head -c 800 $INPUT_NAME$test_case
+			echo -e "..."
+		else
+			cat $INPUT_NAME$test_case
+		fi
+		echo -e "\n$Head             Expected Output                $Nm"
+		echo -e "$FbrBbl▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm$Nm"
+		echo -e "$Nm\e[1m"
+		let var=($(wc -c < $REALOUTPUT_NAME$test_case))
+		if [ "$var" -gt 800 ] ; then
+			# sed -n 1,10p $REALOUTPUT_NAME$test_case
+			head -c 800 $REALOUTPUT_NAME$test_case
+			echo -e "..."
+		else
+			cat $REALOUTPUT_NAME$test_case
+		fi
+		echo -e "\n$Head               Output File                  $Nm"
+		if timeout $2 /usr/bin/time --output="log" --format="%es, %Mkb" $RUN_VAR < $INPUT_NAME$test_case > $OUTPUT_NAME$test_case ; then                                 #If program runs in specified runtime
+			echo -e "$FbrBbl▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm$Nm"
+			LogVarArray[$((test_case))]="$(<log)"
+			let var=($(wc -c < $OUTPUT_NAME$test_case))
+			if [ "$var" -gt 800 ] ; then
+				# sed -n 1,10p $OUTPUT_NAME$test_case
+				head -c 800 $OUTPUT_NAME$test_case
+				echo -e "..."
+			else
+				cat $OUTPUT_NAME$test_case
+			fi
+		else                            #otherwise TLE
+			LogVarArray[$((test_case))]="Allowed 3s"
+			echo -e "\t$FrdBbl Time Limit Exceeded! $Nm \e[1mAllowed : $2s$Nm"
+			echo "TLE" > $OUTPUT_NAME$test_case        #mark for tle(used in verdict see below)
+		fi
+	done
+	if [ -f "output1" ]; then         #if expected output files present then do diff to compare
+		echo -e "\n\e[48;5;130m                                             $Nm"
+		echo -e "\e[48;5;130m                    VERDICT                  $Nm"
+		echo -e "\e[48;5;130m                                             $Nm"
+		echo -e "$FbrBbl▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\n"
+		for ((test_case=1; test_case<=testcnt; test_case++))
+		do
+			# i=$((${#INPUT_NAME}))
+			# test_case=$((${test_file:$i}))     #get the index of input file
+			if grep -Fxq "TLE" $OUTPUT_NAME$test_case; then    #checks for the TLE mark (see above) ##TODO need to find a better way
+				echo -e " $FblBye $Nm$FyeBbl Sample test $test_case $FblBye  Time Limit   $FyeBbl ${LogVarArray[$(($test_case))]} ✗ $Nm"
+				echo -e "$FyeBbl ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\e[1m"
+			elif diff --brief --ignore-trailing-space $REALOUTPUT_NAME$test_case $OUTPUT_NAME$test_case >> errlg; then  #do a diff on output and my_output
+				# echo -e "\e[1m\e[38;5;34m\tSample test $test_case: Accepted$Nm"
+				echo -e " $FblBgr $FgrBbl Sample test $test_case $FblBgr    Accepted   $FgrBbl ${LogVarArray[$(($test_case))]} ✓ $Nm"
+				echo -e "$FgrBbl ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\e[1m"
+				rm -rf errlg
+			else                          #if it isn't tle or accepted then wrong answer. ##TODO store the memory used and check for memory limit
+				echo -e " $FblBrd $Nm$FrdBbl Sample test $test_case $FblBrd  Wrong Answer $FrdBbl ${LogVarArray[$(($test_case))]} ✗ $Nm"
+				echo -e "$FrdBbl ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\e[1m"
+			fi
+		done
+	fi
+
+else
+	echo -e "Input files doesn't exist. Please enter input MANUALLY. TLE won't be identified."
+	echo -e " "
+	$RUN_VAR
+	echo -e "____________________________________________"
+fi
+
+rm -rf log
+read -n 1
