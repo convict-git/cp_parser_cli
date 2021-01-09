@@ -4,21 +4,6 @@
 [![Generic badge](https://img.shields.io/badge/Download-Linux%20x64-blue.svg)](https://www.youtube.com/watch?v=otiMil1kt1Y)
 
 ### Install
-
-### Config file
-* Make sure there exists a config file.
-
-$ `cd ~/.config`
-
-$ `mkdir parser`
-
-$ `touch parser.json`
-
-* This is how `parser.json` should look like. Add your template destination like shown below.
-```json
-{
-   "Template" : "/home/convict/Dropbox/myfiles/cplib/temp.cpp",
-   "lang" : ""
-}
+```bash
+$ ./build.sh
 ```
-
