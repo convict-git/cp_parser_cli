@@ -3,7 +3,7 @@
 [![Generic badge](https://img.shields.io/badge/Made%20Out%20of-Frustation-black.svg)](https://www.youtube.com/watch?v=otiMil1kt1Y)
 [![Generic badge](https://img.shields.io/badge/Download-Linux%20x64-blue.svg)](https://www.youtube.com/watch?v=otiMil1kt1Y)
 
-### Install
+### Build and Install
 ```bash
 $ ./build.sh
 ```
