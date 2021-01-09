@@ -1,2 +1,0 @@
-[ ] Create a setup
-[X] Show mem_limit and time_limit on mainscreen
