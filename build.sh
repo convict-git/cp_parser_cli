@@ -47,9 +47,9 @@ sudo cp -v ./scripts/cp-random /usr/bin/cp-random
 sudo cp -v ./scripts/cp-tester /usr/bin/cp-tester
 
 echo -e "Giving executable permissions"
-chmod +x /usr/bin/cp-parse
-chmod +x /usr/bin/cp-compile
-chmod +x /usr/bin/cp-random
-chmod +x /usr/bin/cp-tester
+sudo chmod +x /usr/bin/cp-parse
+sudo chmod +x /usr/bin/cp-compile
+sudo chmod +x /usr/bin/cp-random
+sudo chmod +x /usr/bin/cp-tester
 
 echo -e "\e[32mAll done!\e[0m"
