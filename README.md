@@ -1,24 +1,25 @@
 ![parser-banner](https://user-images.githubusercontent.com/34399448/104093635-b8ea8b80-52b1-11eb-880c-9226b60fc83f.jpg)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/convict-git/cp_parser_cli/issues) [![HitCount](http://hits.dwyl.com/convict-git/cp_parser_cli.svg)](http://hits.dwyl.com/convict-git/cp_parser_cli)
 [![Generic badge](https://img.shields.io/badge/Made%20Out%20of-Frustation-black.svg)](https://www.youtube.com/watch?v=otiMil1kt1Y)
-[![Generic badge](https://img.shields.io/badge/Download-Linux%20x64-blue.svg)](https://www.youtube.com/watch?v=otiMil1kt1Y)
+[![Generic badge](https://img.shields.io/badge/Download-Linux%20x64-blue.svg)](https://github.com/convict-git/cp_parser_cli/releases/download/v1.0.0/package.zip)
 
-### Install
 
-### Config file
-* Make sure there exists a config file.
+### Download and Install
 
-$ `cd ~/.config`
+```bash
+$ wget https://github.com/convict-git/cp_parser_cli/releases/download/v1.0.0/package.zip
+# or download the latest release from "Download-Linux x64 badge"
+$ unzip package.zip
+$ cd package
+$ chmod +x install.sh && ./install.sh
+```
 
-$ `mkdir parser`
+### Build and Install
 
-$ `touch parser.json`
-
-* This is how `parser.json` should look like. Add your template destination like shown below.
-```json
-{
-   "Template" : "/home/convict/Dropbox/myfiles/cplib/temp.cpp",
-   "lang" : ""
-}
+```bash
+$ git clone https://github.com/convict-git/cp_parser_cli.git
+$ cd cp_parser_cli
+$ chmod +x build.sh
+$ ./build.sh
 ```
 
