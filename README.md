@@ -7,19 +7,23 @@
 ### Download and Install
 
 ```bash
-$ wget https://github.com/convict-git/cp_parser_cli/releases/download/v1.0.0/package.zip
+wget https://github.com/convict-git/cp_parser_cli/releases/download/v1.0.0/package.zip
 # or download the latest release from "Download-Linux x64 badge"
-$ unzip package.zip
-$ cd package
-$ chmod +x install.sh && ./install.sh
+unzip package.zip
+cd package
+chmod +x install.sh && ./install.sh
 ```
 
 ### Build and Install
 
 ```bash
-$ git clone https://github.com/convict-git/cp_parser_cli.git
-$ cd cp_parser_cli
-$ chmod +x build.sh
-$ ./build.sh
+git clone https://github.com/convict-git/cp_parser_cli.git
+cd cp_parser_cli
+chmod +x build.sh
+./build.sh
 ```
 
+### Uninstall
+```bash
+chmod +x uninstall.sh && ./uninstall.sh
+```
