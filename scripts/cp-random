@@ -84,3 +84,4 @@ done
 
 rm -rf gen.out
 rm -rf tester.out
+read -n 1
