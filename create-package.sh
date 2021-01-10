@@ -3,6 +3,7 @@
 if
    mkdir -p package &&
    cp -v ./install.sh ./package &&
+   cp -v ./uninstall.sh ./package &&
    cp -v ./bin/cp-parse ./package/bin &&
    cp -rv ./scripts ./package
 then

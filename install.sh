@@ -22,4 +22,6 @@ else
    echo -e "\e[1m\e[33mConfiguration file created at ~/.config/cpparsercli/config.json\e[0m"
 fi
 
-echo -e "\e[32mAll done!\e[0m"
+echo -e "\e[32mAll done!\e[0m\n\n"
+
+echo -e "To uninstall run \e[1m./uninstall.sh\e[0m (But We hope you never do that)"
