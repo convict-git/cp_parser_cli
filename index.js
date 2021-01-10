@@ -1,5 +1,3 @@
-//@authors : Priyanshu Shrivastav, Shruti Umat, Abhishek Saran
-
 const app        = require('express')(),
       bodyParser = require('body-parser'),
       fs         = require('file-system'),
