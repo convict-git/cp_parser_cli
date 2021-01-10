@@ -34,26 +34,6 @@ else
    exit
 fi
 
-echo -e "Copying all scripts and parser to /usr/bin"
-sudo cp -v ./bin/cp-parse /usr/bin/cp-parse
-sudo cp -v ./scripts/cp-compile /usr/bin/cp-compile
-sudo cp -v ./scripts/cp-random /usr/bin/cp-random
-sudo cp -v ./scripts/cp-tester /usr/bin/cp-tester
-
-echo -e "Giving executable permissions"
-sudo chmod +x /usr/bin/cp-parse
-sudo chmod +x /usr/bin/cp-compile
-sudo chmod +x /usr/bin/cp-random
-sudo chmod +x /usr/bin/cp-tester
-
-echo -e "Creating configuration file for template"
-mkdir -p ~/.config/parser
-if [ -f "~/.config/parser/parser.json" ]; then
-   echo "Configuration file already exists"
-else
-   touch ~/.config/parser/parser.json
-   echo  "{  \"Template\" : \"\", \"lang\" : \"\"  }" > ~/.config/parser/parser.json
-   echo "Configuration file created at ~/.config/parser/parser.json"
-fi
-
-echo -e "\e[32mAll done!\e[0m"
+echo -e "\e[33mInstalling the package...\e[0m"
+chmod +x ./install.sh
+./install.sh
