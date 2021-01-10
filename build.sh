@@ -34,6 +34,5 @@ else
    exit
 fi
 
-echo -e "\e[33mInstalling the package...\e[0m"
+echo -e "\e[1m\e[33mNow please run ./install.sh to Install...\e[0m"
 chmod +x ./install.sh
-./install.sh
