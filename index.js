@@ -93,7 +93,7 @@ app.post('/', (req, res) => {
 
 
    //get the global config file to copy template file
-   var parser_config_file = '/home/' + user_name + '/.config/parser/parser.json';
+   var parser_config_file = '/home/' + user_name + '/.config/cpparsercli/config.json';
    // console.log(colors.debug(`parser_config_file : ${parser_config_file}`));
    try {
       //check if parser config file exists
