@@ -19,8 +19,8 @@ chmod +x install.sh && ./install.sh
 ```bash
 git clone https://github.com/convict-git/cp_parser_cli.git
 cd cp_parser_cli
-chmod +x build.sh
-./build.sh
+chmod +x build.sh && ./build.sh
+chmod +x install.sh && ./install.sh
 ```
 
 ### Uninstall
