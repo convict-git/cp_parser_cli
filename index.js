@@ -20,7 +20,7 @@ console.log(colors.debug(`currently in dir : ${cur_working_dir.toString()}`));
 
 var echo_header_done = false;
 
-const port = 8080; // port to listen
+const port = 2626; // port to listen
 app.use(bodyParser.json());
 
 app.post('/', (req, res) => {
