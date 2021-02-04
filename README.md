@@ -3,6 +3,13 @@
 [![Generic badge](https://img.shields.io/badge/Made%20Out%20of-Frustation-black.svg)](https://www.youtube.com/watch?v=otiMil1kt1Y)
 [![Generic badge](https://img.shields.io/badge/Download-Linux%20x64-blue.svg)](https://github.com/convict-git/cp_parser_cli/releases/download/v1.0.0/package.zip)
 
+### Setup Competitve Companion browser extension
+
+Install Firefox Add-on: [https://addons.mozilla.org/en-US/firefox/addon/competitive-companion/](https://addons.mozilla.org/en-US/firefox/addon/competitive-companion/)
+`or`
+Install Chrome Extension: [https://chrome.google.com/webstore/detail/competitive-companion/cjnmckjndlpiamhfimnnjmnckgghkjbl](https://chrome.google.com/webstore/detail/competitive-companion/cjnmckjndlpiamhfimnnjmnckgghkjbl)
+
+Go to the extension/add-on settings as set the Custom port to `2626`.
 
 ### Download and Install
 
