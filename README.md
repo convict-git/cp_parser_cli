@@ -5,9 +5,9 @@
 
 ### Setup Competitve Companion browser extension
 
-Install Firefox Add-on: [https://addons.mozilla.org/en-US/firefox/addon/competitive-companion/](https://addons.mozilla.org/en-US/firefox/addon/competitive-companion/) \
+Install Firefox Add-on: [Link](https://addons.mozilla.org/en-US/firefox/addon/competitive-companion/) \
 `or` \
-Install Chrome Extension: [https://chrome.google.com/webstore/detail/competitive-companion/cjnmckjndlpiamhfimnnjmnckgghkjbl](https://chrome.google.com/webstore/detail/competitive-companion/cjnmckjndlpiamhfimnnjmnckgghkjbl) \
+Install Chrome Extension: [Link](https://chrome.google.com/webstore/detail/competitive-companion/cjnmckjndlpiamhfimnnjmnckgghkjbl)
 
 Go to the extension/add-on settings as set the Custom port to `2626`.
 
