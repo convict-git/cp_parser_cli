@@ -109,7 +109,7 @@ app.post('/', (req, res) => {
          // console.log(colors.debug(`${parser_config_json.Template}`)); // this contains location of template file
 
          fs.copyFile(parser_config_json.Template, final_path + '/' + problem_name + '.cpp', (err) => {
-            if (err) throw err;
+            if (err) console.log(colors.error(`${err}`));
             // console.log(colors.debug(`Template file copied`));
          });
       }
