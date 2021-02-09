@@ -14,7 +14,7 @@ Go to the extension/add-on settings as set the Custom port to `2626`.
 ### Download and Install
 
 ```bash
-wget https://github.com/convict-git/cp_parser_cli/releases/download/v1.0.0/package.zip
+wget https://github.com/convict-git/cp_parser_cli/releases/download/v1.0.1/package.zip
 # or download the latest release from "Download-Linux x64 badge"
 unzip package.zip
 cd package
