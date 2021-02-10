@@ -30,6 +30,17 @@ chmod +x build.sh && ./build.sh
 chmod +x install.sh && ./install.sh
 ```
 
+### Usage
+
+#### cp-parse
+
+Watch this 
+[![Generic badge](https://img.shields.io/badge/YouTube-Demo-blue.svg)](https://youtu.be/NZ1oSNwjzF8)
+
+#### cp-tester
+Watch this 
+[![Generic badge](https://img.shields.io/badge/YouTube-Demo-blue.svg)](https://youtu.be/9aLfFaYXwGc)
+
 ### Uninstall
 ```bash
 chmod +x uninstall.sh && ./uninstall.sh
