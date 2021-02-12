@@ -3,7 +3,7 @@
 rm -rfv ./package.zip
 
 if
-   mkdir -p package &&
+   mkdir -p package/bin &&
    cp -v ./install.sh ./package &&
    cp -v ./uninstall.sh ./package &&
    cp -v ./bin/cp-parse ./package/bin &&
