@@ -1,5 +1,7 @@
 #! /usr/bin/bash
 
+rm -rfv ./package.zip
+
 if
    mkdir -p package &&
    cp -v ./install.sh ./package &&

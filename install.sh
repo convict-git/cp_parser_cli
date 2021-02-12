@@ -1,16 +1,30 @@
 #! /usr/bin/bash
 
 echo -e "Copying all scripts and parser to /usr/bin"
-sudo cp -v ./bin/cp-parse /usr/bin/cp-parse
-sudo cp -v ./scripts/cp-compile /usr/bin/cp-compile
-sudo cp -v ./scripts/cp-random /usr/bin/cp-random
-sudo cp -v ./scripts/cp-tester /usr/bin/cp-tester
+if
+   sudo cp -v ./bin/cp-parse /usr/bin/cp-parse
+   sudo cp -v ./scripts/cp-compile /usr/bin/cp-compile
+   sudo cp -v ./scripts/cp-random /usr/bin/cp-random
+   sudo cp -v ./scripts/cp-tester /usr/bin/cp-tester
+then
+   echo -e "\e[32mSuccessfully copied files to /usr/bin\e[0m\n\n"
+else
+   echo -e "\e[31mCopying failed!\e[0m\n\n"
+   exit
+fi
 
 echo -e "Giving executable permissions"
-sudo chmod +x /usr/bin/cp-parse
-sudo chmod +x /usr/bin/cp-compile
-sudo chmod +x /usr/bin/cp-random
-sudo chmod +x /usr/bin/cp-tester
+if
+   sudo chmod +x /usr/bin/cp-parse
+   sudo chmod +x /usr/bin/cp-compile
+   sudo chmod +x /usr/bin/cp-random
+   sudo chmod +x /usr/bin/cp-tester
+then
+   echo -e "\e[32mPermissions set successfully!\e[0m\n\n"
+else
+   echo -e "\e[31mPermission setting failed!\e[0m\n\n"
+   exit
+fi
 
 echo -e "Creating configuration file for template"
 mkdir -p ~/.config/cpparsercli

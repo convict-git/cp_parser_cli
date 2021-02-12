@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo -e "Cleaning previous build if present.."
+rm -rfv ./bin/cp-parse
+
 echo -e "Checking if npm is installed.."
 if npm -v;
 then
