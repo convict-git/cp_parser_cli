@@ -1,0 +1,172 @@
+#! /usr/bin/bash
+# author : Priyanshu Shrivastav (github.com/convict-git)
+# This script is mainly for Google Hashcode and similar challenges
+
+#################### some global variables #####################
+
+ARG=$1                # First argument
+
+TEST_CNT=$2           # for --setup or -s
+TESTER=$2             # for --tester or -t
+SRC=$2                # for --run or -r
+
+SRC_EXEC=./main       # executable for the current source
+TESTER_EXEC=./tester  # executable for the tester
+
+SRC_DIR=./srcs        # To keep all the CPP of source files + tester
+INPUTS_DIR=./inputs   # To store the input as input1, input2 ...
+OUTPUTS_DIR=./outputs # To store the output as output1, output2 ...
+SCORES_DIR=./scores   # To store the scores as score1, score2 ...
+
+#################### some required functions #####################
+
+# Method log
+# @Argument1 : log type {error, success, info}
+# @Argument2 : log message
+log () {
+   local COL=""
+   case $1 in error) COL="$COL\e[31m\e[1m" ;; info) COL="$COL\e[33m" ;; success) COL="$COL\e[32m\e[1m" ;; esac
+   echo -e "$COL [ $(date) ] $2\e[0m"
+}
+
+# Method compile
+# @Argument1 : filename as $1
+# @Argument2 : exectuable as $2
+# @Argument3 : purpose as $3
+# @Brief     : Method to compile cpp files
+compile() {
+   log info "Compiling $1"
+   if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 \
+      -Wconversion -Wshift-overflow=2 -Wduplicated-cond -DCONVICTION -O2 $1 -o $2
+   then log success "$3 compiled successfully $i"
+   else log error "$3 compilation failed $i" && exit
+   fi
+}
+
+#################### logic for "--setup" #####################
+
+# @Argument1 : "--setup" or "-s"
+# @Argument2 : Number of test case (an integer)
+# @Brief     : If setup not already done. It makes few directories and files.
+# @Eg        : call with args "--setup 6" or "-s 6" for six test cases
+
+if [ "$ARG" == "--setup" ] || [ "$ARG" == "-s" ]
+then
+   # If second argument for number of test cases not provided
+   if [ -z "$TEST_CNT" ] || [ "$TEST_CNT" -eq "0" ];
+   then log error "Please provide number of test case" && exit; fi
+
+   log info "Doing the required setup..."
+   mkdir -p $SRC_DIR $INPUTS_DIR $OUTPUTS_DIR $SCORES_DIR
+   touch $SRC_DIR/tester.cpp $SRC_DIR/main.cpp
+
+   for ((t=1;t<=TEST_CNT;t++));
+   do
+      touch $INPUTS_DIR/input$t $OUTPUTS_DIR/output$t $SCORES_DIR/score$t
+      echo "0" > $SCORES_DIR/score$t # Score initially is 0
+   done
+
+   log success "Setup done"
+   log info "Some points to remember: \n \
+      i) Keep the source file and the tester in $SRC_DIR \n \
+      ii) Inputs are in $INPUTS_DIR, let the names stay as input1, input2 ... \n \
+      iii) Outputs are in $OUTPUTS_DIR, which can be submitted from there \n \
+      iv) Each time you get a better score in some test case, a best src file is created for that test case in $SRC_DIR\n"
+
+#################### logic for "--tester" #####################
+
+# @Argument1 : "--tester" or "-t"
+# @Argument2 : a CPP file for tester kept in $SRC_DIR
+# @Brief     : compiles the tester present in $SRC_DIR
+# @Eg        :  Let the tester file be in $SRC_DIR as tester.cpp, then
+#               call with args "-t tester.cpp" or "--tester tester.cpp"
+
+elif [ "$ARG" == "--tester" ] || [ "$ARG" == "-t" ]
+then
+   if [ -z "$TESTER" ]; then log error "Give tester's CPP file as argument too" && exit; fi
+   compile $SRC_DIR/$TESTER $TESTER_EXEC "Tester"
+
+#################### logic for "--run" #####################
+
+# @Argument1 : "--run" or "-r"
+# @Argument2 : a CPP file for solution kept in $SRC_DIR
+# @Brief     : runs the solution on the test case
+#              and the tester to calculate the score
+# @Eg        : Let the source file be in $SRC_DIR as main.cpp, then
+#              then call with args "-r main.cpp" or "--run main.cpp"
+
+elif [ "$ARG" == "--run" ] || [ "$ARG" == "-r" ]
+then
+   if [ -z "$SRC" ]; then log error "Give solution's CPP file as argument too" && exit; fi
+   clear
+   compile $SRC_DIR/$SRC $SRC_EXEC "Solver" # Compile the src
+
+
+   TOTAL_SCORE=0 # store total max score
+   TEST_CNT=0;   # count number of test cases in $INPUTS_DIR
+   for _ in $INPUTS_DIR/*; do TEST_CNT=$((TEST_CNT+1)); done
+
+   # If no test cases found
+   if [ $TEST_CNT -eq 0 ]; then log error "No input files found in $INPUTS_DIR" && exit; fi
+
+   for((t=1;t<=$TEST_CNT;t++));
+   do
+      log info "Running test $t"
+
+      /usr/bin/time --format="  (took %e sec)" ./$SRC_EXEC < $INPUTS_DIR/input$t > $OUTPUTS_DIR/output$t
+      ## NOTE That input to tester is given as "input" + newline + "output"
+      TEST_INPUT="$(cat $INPUTS_DIR/input$t)"$'\n'"$(cat $OUTPUTS_DIR/output$t)"
+      echo $TEST_INPUT > temp
+
+      NEW_SCORE=$($TESTER_EXEC < temp)     # score for the current solution
+      OLD_SCORE=$(cat $SCORES_DIR/score$t) # old best score
+      DIFF_SCORE=$((NEW_SCORE-OLD_SCORE))  # difference
+      echo -e "\e[46m Test Case $t \e[44m Current Score: \e[1m  $NEW_SCORE  $TIME_INFO\e[0m"
+
+      if [ $NEW_SCORE -gt $OLD_SCORE ]     # if new score is greater than old score
+      then
+         echo $NEW_SCORE > $SCORES_DIR/score$t
+         echo -e "\e[32m\e[7m  NEW HIGH SCORE. Test Case $t. Diff: \e[1m$DIFF_SCORE  \e[5m ✓ \e[0m"
+         cp $SRC_DIR/$SRC $SRC_DIR/"last_best$t".cpp
+         TOTAL_SCORE=$((TOTAL_SCORE+NEW_SCORE))
+
+      elif [ $NEW_SCORE -eq $OLD_SCORE ]   # they are equal
+      then
+         echo -e "\e[100m No change in scores \e[0m"
+         TOTAL_SCORE=$((TOTAL_SCORE+NEW_SCORE))
+
+      else                                 # old score was greater
+         echo -e "\e[31m\e[7m  SCORE LOWERED. Test Case $t. Diff: \e[1m$DIFF_SCORE \e[5m ✗ \e[0m"
+         TOTAL_SCORE=$((TOTAL_SCORE+OLD_SCORE))
+      fi
+      rm -rf temp;
+   done
+   echo -e "\n\n\t\t\e[44m\e[7m  Total Score: \e[1m\e[4m  $TOTAL_SCORE  \e[0m"
+
+#################### show usage #####################
+
+else
+   log info " \
+      Usage: \e[1m\e[4m\e[7m  cp-hcscript  \e[0m \n \
+      The first two steps are only for the first time (unless you change the tester), \n \
+      subseqeuntly you will be mostly making changes in src and do -r \n\n \
+      First, you need to do the setup (preferrably in a fresh dir) \n \
+         \e[1m# @Argument1 : \"--setup\" or \"-s\"\e[0m \n \
+         # @Argument2 : Number of test case (an integer) \n \
+         # @Brief     : If setup not already done. It makes few directories and files. \n \
+         # @Eg        : call with args \"--setup 6\" or \"-s 6\" for six test cases \n\n \
+      Then, you need to compile the tester \n \
+         \e[1m# @Argument1 : \"--tester\" or \"-t\"\e[0m \n \
+         # @Argument2 : a CPP file for tester kept in $SRC_DIR \n \
+         # @Brief     : compiles the tester present in $SRC_DIR \n \
+         # @Eg        :  Let the tester file be in $SRC_DIR as tester.cpp, then \n \
+         #               call with args \"-t tester.cpp\" or \"--tester tester.cpp\" \n\n \
+      This is the step you will be doing most of the time\n \
+         \e[1m# @Argument1 : \"--run\" or \"-r\"\e[0m \n \
+         # @Argument2 : a CPP file for solution kept in $SRC_DIR \n \
+         # @Brief     : runs the solution on the test case \n \
+         #              and the tester to calculate the score \n \
+         # @Eg        : Let the source file be in $SRC_DIR as main.cpp, then \n \
+         #              then call with args \"-r main.cpp\" or \"--run main.cpp\" \n"
+fi
+exit
