@@ -6,6 +6,7 @@ if
    sudo cp -v ./scripts/cp-compile /usr/bin/cp-compile
    sudo cp -v ./scripts/cp-random /usr/bin/cp-random
    sudo cp -v ./scripts/cp-tester /usr/bin/cp-tester
+   sudo cp -v ./scripts/cp-hcscript /usr/bin/cp-hcscript
 then
    echo -e "\e[32mSuccessfully copied files to /usr/bin\e[0m\n\n"
 else
@@ -19,6 +20,7 @@ if
    sudo chmod +x /usr/bin/cp-compile
    sudo chmod +x /usr/bin/cp-random
    sudo chmod +x /usr/bin/cp-tester
+   sudo chmod +x /usr/bin/cp-hcscript
 then
    echo -e "\e[32mPermissions set successfully!\e[0m\n\n"
 else
