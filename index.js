@@ -67,6 +67,7 @@ app.post('/', (req, res) => {
 
    // pconfig json object to be read by tester
    var pconfig_obj = {
+      url : data.url,
       test_count : test_count,
       time_limit : time_limit,
       mem_limit : mem_limit * 1000
