@@ -176,6 +176,12 @@ def main():
 
         logger ("success", "recv from " + str(addr[0]) + ':' +  str(addr[1]))
 
+        # Expected json (minimum requirements)
+        # eg.
+        # {
+        # "filename":"/home/user/.../main.cpp",
+        # "pconfig":{"url":"https://codeforces.com/contest/1475/problem/A"}
+        # }
         js = json.loads(data.decode('utf-8'))
         filename = js['filename']
         cpplabel = filename.split('/')[-1]
