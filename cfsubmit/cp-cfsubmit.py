@@ -70,7 +70,7 @@ def login_console():
     logger("info", "Waiting for details to signin")
 
     # The below code looks ugly because it intends to make things look beautiful at CLI
-    print(co['bg'] + "   Login into \33[47m📊                \33[1m\33[30mCODE\33[34mFORCES  " + co['r'])
+    print(co['bg'] + "\33[30m  Login into \33[47m   \33[33m▄\33[34m█\33[31m▄ \33[1m\33[30mCODE\33[34mFORCES  " + co['r'])
     print(co['bg'] + " " + co['r'] + co['fg'] + "\t username : " + co['r'], end=' ', flush=True)
     username = input("\33[4m")
     print(co['bg'] + " " + co['r'] + co['fg'] + "\t password : " + co['r'], end=' ', flush=True)
