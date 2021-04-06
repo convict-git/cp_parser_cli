@@ -148,8 +148,9 @@ def validate_cf_url(url):
 def login(username, password):
     logger ('info', 'Trying to login into codeforces for the handle : {0}'.format(username))
     url = 'https://codeforces.com/enter'
-    driver.get(url)
     try :
+        driver.get(url)
+        driver.switch_to.window(driver.current_window_handle)
         driver.find_element_by_id('handleOrEmail').send_keys(username)
         driver.find_element_by_id('password').send_keys(password)
         driver.find_element_by_id('remember').click()
@@ -173,6 +174,7 @@ def submit(contestId, problemIndex, filename):
     url = 'https://codeforces.com/contest/{0}/submit/{1}'.format(contestId, problemIndex)
     try:
         driver.get(url)
+        driver.switch_to.window(driver.current_window_handle)
         driver.find_element_by_name('sourceFile').send_keys(filename)
         driver.find_element_by_class_name('submit').click()
     except Exception as e:
