@@ -10,6 +10,7 @@ import werkzeug
 werkzeug.cached_property = werkzeug.utils.cached_property
 from robobrowser import RoboBrowser
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 
 ######################### Some global constants ################################################
@@ -24,7 +25,11 @@ co = {
         'bg': "\33[0m\33[42m", 'br': "\33[0m\33[41m",
         'r' : "\33[0m"
         }
-driver = webdriver.Chrome(executable_path=r'/home/convict/Downloads/chromedriver')
+
+chrome_options = Options()
+chrome_options.add_argument("--kiosk")
+chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
+driver = webdriver.Chrome(executable_path=r'/home/convict/Downloads/chromedriver', options=chrome_options)
 ########################## Some helper methods #################################################
 
 
@@ -221,12 +226,17 @@ def main():
 
         logger ("success", "recv from " + str(addr[0]) + ':' +  str(addr[1]))
 
-        # Expected json (minimum requirements)
+        # NOTE: Expected json (minimum requirements)
         # eg.
         # {
         # "filename":"/home/user/.../main.cpp",
+        # "submit" : "True"
         # "pconfig":{"url":"https://codeforces.com/contest/1475/problem/A"}
         # }
+        #
+        # NOTE: to just open the problem set,
+        #       send this json with submit as "False"
+
         js = json.loads(data.decode('utf-8'))
         filename = js['filename']
         cpplabel = filename.split('/')[-1]
@@ -240,11 +250,15 @@ def main():
 
         if (isValid == True): # True for all cf problems (except gym)
             logger('success', 'Valid URL for codeforces found')
-            if (submit(contestId, problemIndex, filename)):
-            # if (submit_to_cf(browser, contestId, problemIndex, filename)):
-                logger('success', 'Submitted {2} successfully for {0}/{1}'.format(contestId, problemIndex, cpplabel))
-            else:
-                logger('error', 'Failed at submitting {2} for {0}/{1}'.format(contestId, problemIndex, cpplabel))
+            if (js['submit'] == "True"): # requests submission
+                if (submit(contestId, problemIndex, filename)):
+                # if (submit_to_cf(browser, contestId, problemIndex, filename)):
+                    logger('success', 'Submitted {2} successfully for {0}/{1}'.format(contestId, problemIndex, cpplabel))
+                else:
+                    logger('error', 'Failed at submitting {2} for {0}/{1}'.format(contestId, problemIndex, cpplabel))
+            else: # requests opening problem set
+                driver.execute_script("window.open('https://codeforces.com/contest/{}/problems');".format(contestId))
+
         else:
             logger('error', 'This is not a valid codeforces problem')
 
