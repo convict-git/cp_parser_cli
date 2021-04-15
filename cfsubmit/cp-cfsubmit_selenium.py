@@ -143,9 +143,9 @@ def submit_to_cf(browser, contestId, problemIndex, filename):
 def validate_cf_url(url):
     urlList = url.split("/")
     (cType, contestId, pType, problemIndex) = urlList[-4:]
-    if (url.count('codeforces') == 0 or cType != 'contest' or pType != 'problem'):
-        return (False, "", "")
-    return (True, contestId, problemIndex)
+    if (url.count('codeforces') == 0 or (cType != 'contest' and cType != 'gym') or pType != 'problem'):
+        return (False, cType, "", "")
+    return (True, cType, contestId, problemIndex)
 
 ################################################################################################
 
@@ -174,9 +174,9 @@ def login(username, password):
     logger ('success', 'Login successful, Welcome {0}!'.format(sessionUser))
     return True
 
-def submit(contestId, problemIndex, filename):
+def submit(cType, contestId, problemIndex, filename):
     logger ('info', 'Trying to submit')
-    url = 'https://codeforces.com/contest/{0}/submit/{1}'.format(contestId, problemIndex)
+    url = 'https://codeforces.com/{}/{}/submit/{}'.format(cType, contestId, problemIndex)
     try:
         driver.get(url)
         driver.switch_to.window(driver.current_window_handle)
@@ -246,18 +246,18 @@ def main():
             continue
 
         url = js['pconfig']['url']
-        isValid, contestId, problemIndex = validate_cf_url(url)
+        isValid, cType, contestId, problemIndex = validate_cf_url(url)
 
         if (isValid == True): # True for all cf problems (except gym)
             logger('success', 'Valid URL for codeforces found')
             if (js['submit'] == "True"): # requests submission
-                if (submit(contestId, problemIndex, filename)):
+                if (submit(cType, contestId, problemIndex, filename)):
                 # if (submit_to_cf(browser, contestId, problemIndex, filename)):
                     logger('success', 'Submitted {2} successfully for {0}/{1}'.format(contestId, problemIndex, cpplabel))
                 else:
                     logger('error', 'Failed at submitting {2} for {0}/{1}'.format(contestId, problemIndex, cpplabel))
             else: # requests opening problem set
-                driver.execute_script("window.open('https://codeforces.com/contest/{}/problems');".format(contestId))
+                driver.execute_script("window.open('https://codeforces.com/{}/{}/problems');".format(cType, contestId))
 
         else:
             logger('error', 'This is not a valid codeforces problem')
