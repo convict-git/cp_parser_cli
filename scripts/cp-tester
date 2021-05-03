@@ -78,7 +78,7 @@ fi
 
 if [ "$flag" = "0" ]; then # Check if compilation failed
 	echo -e "\e[91m\e[1mCompilation Error!$Nm";
-	# read -n 1
+	read -n 1
 	exit
 else
 	echo -e "\e[38;5;34m\e[1mCompilation Successful!$Nm"
@@ -166,4 +166,4 @@ else
 fi
 
 rm -rf log
-# read -n 1
+read -n 1
