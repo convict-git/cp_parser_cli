@@ -41,13 +41,13 @@ if [ "${FILE##*.}" = "cpp" ]; then   # cpp file
 	if [ "$3" = "CD" ]; then
 		rm -rf ./a.out
 		echo -e "\e[1m\e[91mCompiling with debugging flags ( -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 ) ... $Nm"
-		if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $FILE; then
+		if g++ -std=gnu++17 -Wall -g -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $FILE; then
 			flag=1
 		fi
 	elif [ "$3" = "C" ]; then
 		rm -rf ./a.out
 		echo -e "\e[1mCompiling ... $Nm"
-		if g++ -std=gnu++14 -Wall -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $FILE; then
+		if g++ -std=gnu++17 -Wall -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -fsanitize=signed-integer-overflow -fsanitize=bounds -DCONVICTION -O2 $FILE; then
 			flag=1
 		fi
 	else
