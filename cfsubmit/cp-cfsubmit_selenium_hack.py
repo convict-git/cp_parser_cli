@@ -1,4 +1,5 @@
 import os
+from os.path import expanduser
 import socket
 import requests
 import stdiomask
@@ -11,8 +12,13 @@ werkzeug.cached_property = werkzeug.utils.cached_property
 from robobrowser import RoboBrowser
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 
+home_dir=expanduser("~")
 ######################### Some global constants ################################################
 
 UDP_IP_ADDRESS = "127.0.0.1"
@@ -26,11 +32,18 @@ co = {
         'r' : "\33[0m"
         }
 
-chrome_options = Options()
-chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
-# chrome_options.add_argument("--kiosk")
-# chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
-driver = webdriver.Chrome(executable_path=r'/home/convict/Downloads/chromedriver', options=chrome_options)
+try:
+    os.system('mkdir -p {}/.config/cf'.format(home_dir))
+    chrome_options = Options()
+    chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
+    chrome_options.add_argument("user-data-dir={}/.config/cf".format(home_dir))
+    # chrome_options.add_argument("user-data-dir={}/.config/google-chrome".format(home_dir))
+    # chrome_options.add_argument('profile-directory=Default')
+    # chrome_options.add_argument("--kiosk")
+    driver = webdriver.Chrome(executable_path=r'/home/convict/Downloads/chromedriver', options=chrome_options)
+except Exception as e:
+    print(repr(e))
+    exit()
 ########################## Some helper methods #################################################
 
 
@@ -47,8 +60,7 @@ def logger (type, message):
         msg += co['fg']
     else:
         msg += ""
-    # msg += "[  " + time.strftime("%H:%M:%S", time.localtime()) + ' - ' + sessionUser + " ] : "
-    msg += "[  " + time.strftime("%H:%M:%S", time.localtime()) + " ] : "
+    msg += "[ " + time.strftime("%H:%M:%S", time.localtime()) + " ]: "
     print(msg + message + co['r'])
 
 # To safely access map
@@ -65,80 +77,8 @@ def list_to_str(l):
 
 # To exit gracefully
 def handler(signal_received, frame):
-    logger ('success', 'SIGINT or CTRL-C detected. Exiting gracefully')
-    exit(0)
-
-################################################################################################
-
-def login_console():
-    """login_console takes no argument and returns a pair of strings (username and password )"""
-
-    global failedAttempt
-    if (failedAttempt == True):
-        logger('error', 'Previous login attempt failed')
-    logger("info", "Waiting for details to signin")
-
-    # The below code looks ugly because it intends to make things look beautiful at CLI
-    print(co['bg'] + "\33[30m  Login into \33[47m   \33[33m▄\33[34m█\33[31m▄ \33[1m\33[30mCODE\33[34mFORCES  " + co['r'])
-    print(co['bg'] + " " + co['r'] + co['fg'] + "\t username : " + co['r'], end=' ', flush=True)
-    username = input("\33[4m")
-    print(co['bg'] + " " + co['r'] + co['fg'] + "\t password : " + co['r'], end=' ', flush=True)
-
-    # Taking password using stiomask to hide it under asterisk (*)
-    password = stdiomask.getpass(prompt="\33[4m")
-    print(co['r'] + co['bg'] + "         " + co['r'])
-
-    return (username, password)
-
-################################################################################################
-
-def login_to_cf(username, password):
-    """login_to_cf creates a codeforces logged in session using RoboBrowser"""
-
-    logger ('info', 'Trying to login into codeforces for the handle : {0}'.format(username))
-
-    try:
-        browser = RoboBrowser(parser = 'html.parser')
-        browser.open('http://codeforces.com/enter')
-
-        enter_form = browser.get_form('enterForm')
-        enter_form['handleOrEmail'] = username
-        enter_form['password'] = password
-        browser.submit_form(enter_form)
-
-        checks = str(browser.select('div.caption.titled')).count(username)
-        if checks == 0 or username == "":
-            logger ('error', 'Login Failed.. Wrong password.')
-            return (False, browser)
-    except Exception as e:
-        logger('error', 'Login Failed.. Maybe wrong id/password.')
-        return (False, browser)
-
-    global sessionUser
-    sessionUser = username
-    logger ('success', 'Login successful, Welcome {0}!'.format(sessionUser))
-    return (True, browser)
-
-################################################################################################
-
-def submit_to_cf(browser, contestId, problemIndex, filename):
-    """submit_to_cf submits a solution to the given contestId/problemIndex as file using
-    logged in browser session"""
-
-    logger ('info', 'Trying to submit')
-
-    try:
-        browser.open('https://codeforces.com/contest/{0}/submit/{1}'.format(contestId, problemIndex))
-        submit_form = browser.get_form(class_ = 'submit-form')
-        submit_form['sourceFile'] = filename
-    except Exception as e:
-        logger ('error', 'File {0} not found'.format(filename))
-        return False
-    browser.submit_form(submit_form)
-    if (browser.url.count('token') > 0):
-        logger ('error', 'Same file submitted before')
-        return False
-    return True
+    print('\033[91;1;5mGood bye!\033[0m')
+    os._exit(os.EX_OK)
 
 ################################################################################################
 
@@ -151,62 +91,46 @@ def validate_cf_url(url):
 
 ################################################################################################
 
-# Selenium
-def login(username, password):
-    logger ('info', 'Trying to login into codeforces for the handle : {0}'.format(username))
-    url = 'https://codeforces.com/enter'
-    try :
-        driver.get(url)
-        driver.switch_to.window(driver.current_window_handle)
-        driver.find_element_by_id('handleOrEmail').send_keys(username)
-        driver.find_element_by_id('password').send_keys(password)
-        driver.find_element_by_id('remember').click()
-        driver.find_element_by_class_name('submit').click()
-        os.system('sleep 10')
-    except Exception as e:
-        logger('error', 'Some error occurred')
-        return False
-
-    if (driver.current_url.count('enter') > 0):
-        logger('error', 'Login Failed.. Maybe wrong id/password.')
-        return False
-
-    global sessionUser
-    sessionUser = username
-    logger ('success', 'Login successful, Welcome {0}!'.format(sessionUser))
-    return True
-
 def submit(cType, contestId, problemIndex, filename):
     logger ('info', 'Trying to submit')
     url = 'https://codeforces.com/{}/{}/submit/{}'.format(cType, contestId, problemIndex)
     try:
         driver.get(url)
         driver.switch_to.window(driver.current_window_handle)
-        driver.find_element_by_name('sourceFile').send_keys(filename)
-        driver.find_element_by_class_name('submit').click()
+        # file_name_elem = WebDriverWait(driver, 30).until( EC.presence_of_element_located((By.NAME, 'sourceFile')))
+        file_name_elem = WebDriverWait(driver, 30).until(
+                EC.element_to_be_clickable((By.NAME, 'sourceFile')))
+        # file_name_elem.click()
+        file_name_elem.send_keys(filename)
+
+        # driver.find_element_by_name('sourceFile').send_keys(filename)
+
+        # submit_element = WebDriverWait(driver, 30).until( EC.presence_of_element_located((By.CLASS_NAME, 'submit')))
+        submit_element = WebDriverWait(driver, 30).until(
+                EC.element_to_be_clickable((By.CLASS_NAME, 'submit')))
+        submit_element.send_keys(Keys.RETURN)
+        # submit_element.click()
+        # driver.find_element_by_class_name('submit').click()
     except Exception as e:
-        logger ('error', 'Some error occured')
+        logger ('error', 'Some error occured \n\t{}'.format(repr(e)))
         return False
 
     return True
 
 ################################################################################################
 
-
 def main():
     global failedAttempt
+    sessionUser = "mr.convict"
     os.system('clear')
-    # Show login screen
-    # username, password = login_console()
-    # Create a RoboBrowser login session using the received credentials
-    # (isLoggedIn, browser) = login_to_cf(username, password)
-    # isLoggedIn = login(username, password)
-
-    sessionUser = 'mr.convict'
-    isLoggedIn = True
-    if (isLoggedIn == False):
-        failedAttempt = True
-        main()
+    try:
+        main_url = 'https://codeforces.com/enter'
+        driver.get(main_url)
+        driver.switch_to.window(driver.current_window_handle)
+        # driver.execute_script("window.open('https://wumbogames.com/CFNotifications');")
+    except Exception as e:
+        print(repr(e))
+        exit()
 
     # UDP server initialization
     logger ("info", "Initializing UDP server listening on {}:{}".format(UDP_IP_ADDRESS, UDP_PORT_NO))
@@ -214,7 +138,7 @@ def main():
         serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         serverSock.bind((UDP_IP_ADDRESS, UDP_PORT_NO))
     except Exception as e:
-        logger ("error", "Unable to setup the server at port")
+        logger ("error", "Unable to setup the server at port\n\t{}".format(repr(e)))
         return
 
     logger ("success", "Successfully created a server at {}:{}".format(UDP_IP_ADDRESS, UDP_PORT_NO))
@@ -262,8 +186,10 @@ def main():
                 else:
                     logger('error', 'Failed at submitting {2} for {0}/{1}'.format(contestId, problemIndex, cpplabel))
             elif (js['submit'] == "1"): # requests opening problem set
+                logger('success', 'Opening problem set {}'.format(contestId))
                 driver.execute_script("window.open('https://codeforces.com/{}/{}/problems');".format(cType, contestId))
-            else: # Just open the specific problem
+            else: # requests specific problem
+                logger('success', 'Opening problem {}-{}'.format(contestId, problemIndex))
                 driver.execute_script("window.open('https://codeforces.com/{}/{}/problem/{}');".format(cType, contestId, problemIndex))
 
         else:
