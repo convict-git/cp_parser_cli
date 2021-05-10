@@ -6,9 +6,6 @@ from sys import exit
 import requests
 import click
 import time
-import werkzeug
-werkzeug.cached_property = werkzeug.utils.cached_property
-from robobrowser import RoboBrowser
 from playsound import playsound
 
 home_dir=expanduser("~")
