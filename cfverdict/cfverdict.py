@@ -1,4 +1,5 @@
 import os
+from os.path import expanduser
 import sys
 from signal import signal, SIGINT
 from sys import exit
@@ -10,7 +11,8 @@ werkzeug.cached_property = werkzeug.utils.cached_property
 from robobrowser import RoboBrowser
 from playsound import playsound
 
-sound=['/home/convict/AC-Sound.mp3', '/home/convict/WA-Sound.mp3']
+home_dir=expanduser("~")
+sound=[home_dir+'/AC-Sound.mp3', home_dir+'/WA-Sound.mp3']
 username = ""
 pretty_username=""
 
