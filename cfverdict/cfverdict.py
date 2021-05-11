@@ -51,7 +51,8 @@ def get_last_verdict(user):
                      'handle={}&from=1&count=1'.format(user))
     js = r.json()
     if 'status' not in js or js['status'] != 'OK':
-        raise ConnectionError('Cannot connect to codeforces!')
+        return False, 0, 0, 0, 0, 0, 0, 0
+        # raise ConnectionError('Cannot connect to codeforces!')
     try:
         result = js['result'][0]
         id_ = result['id']
@@ -63,15 +64,20 @@ def get_last_verdict(user):
         contestId_ = problem_['contestId']
         problemIndex_ = problem_['index']
     except Exception as e:
-        raise ConnectionError('Cannot get latest submission, error')
-    return id_, verdict_, time_, memory_, passedTestCount_, contestId_, problemIndex_
+        return False, 0, 0, 0, 0, 0, 0, 0
+        # raise ConnectionError('Cannot get latest submission, error')
+    return True, id_, verdict_, time_, memory_, passedTestCount_, contestId_, problemIndex_
 
 def get_time():
     return "\033[7m[ " + time.strftime("%H:%M:%S", time.localtime()) + " ]\033[0m"
 
 def run():
-    last_id, _, _, _, _, _, _ = get_last_verdict(username)
     global wait_idx, last_verdict, verdict_stack
+    got, last_id, _, _, _, _, _, _ = get_last_verdict(username)
+    if (got == False):
+        print('\033[91;1m Some error occurred\033[0m')
+        time.sleep(1)
+        run()
 
     hasStarted = False
     while True:
@@ -80,7 +86,13 @@ def run():
         if (not hasStarted):
             os.system('clear')
             print('{}\n{} {}\nWaiting for a {}\'s submission... \033[1;7m {} \033[0m'.format(verdict_stack, get_time(), pretty_username, username, wait[wait_idx]))
-        id_, verdict_, time_, memory_, passedTestCount_, contestId_, problemIndex_  = get_last_verdict(username)
+
+        got, id_, verdict_, time_, memory_, passedTestCount_, contestId_, problemIndex_  = get_last_verdict(username)
+
+        if (got == False):
+            print('\033[91;1m Some error occurred\033[0m')
+            time.sleep(1)
+            continue
         if id_ != last_id:
             os.system('clear')
             result=-1
@@ -89,7 +101,7 @@ def run():
                     last_verdict = '\033[92m Received a submission for {} {}... \033[1m{}\033[0m'.format(contestId_, problemIndex_, wait[wait_idx])
                     hasStarted = True
                 else:
-                    last_verdict=' \033[93;1mTesting \033[7m {} \033[0m\033[93m {} {} on test {} \n\t{} MS | {} KB \033[0m'.format(wait[wait_idx], contestId_, problemIndex_, passedTestCount_+1, time_, memory_)
+                    last_verdict=' \033[93;1mTesting \033[7m {} \033[0m\033[93m {} {}\033[0m'.format(wait[wait_idx], contestId_, problemIndex_)
 
             else:
                 if verdict_ == 'OK':
@@ -107,7 +119,7 @@ def run():
                 hasStarted = False
                 time.sleep(10)
 
-            time.sleep(0.5)
+            time.sleep(0.2)
         else:
             time.sleep(1)
 
