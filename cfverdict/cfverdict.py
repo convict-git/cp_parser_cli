@@ -47,13 +47,13 @@ def get_rank_rating(user):
         return '\033[1m{} {} {} {}\033[0m'.format(colors[rank], user, rating, rank)
 
 def get_last_verdict(user):
-    r = requests.get('http://codeforces.com/api/user.status?' +
-                     'handle={}&from=1&count=1'.format(user))
-    js = r.json()
-    if 'status' not in js or js['status'] != 'OK':
-        return False, 0, 0, 0, 0, 0, 0, 0
-        # raise ConnectionError('Cannot connect to codeforces!')
     try:
+        r = requests.get('http://codeforces.com/api/user.status?' +
+                'handle={}&from=1&count=1'.format(user))
+        js = r.json()
+        if 'status' not in js or js['status'] != 'OK':
+            return False, 0, 0, 0, 0, 0, 0, 0
+            # raise ConnectionError('Cannot connect to codeforces!')
         result = js['result'][0]
         id_ = result['id']
         verdict_ = safeget(result, 'verdict')
@@ -72,10 +72,11 @@ def get_time():
     return "\033[7m[ " + time.strftime("%H:%M:%S", time.localtime()) + " ]\033[0m"
 
 def run():
+    os.system('clear')
     global wait_idx, last_verdict, verdict_stack
     got, last_id, _, _, _, _, _, _ = get_last_verdict(username)
     if (got == False):
-        print('\033[91;1m Some error occurred\033[0m')
+        print('{} \033[91;1m Some error occurred\033[0m'.format(get_time()))
         time.sleep(1)
         run()
 
