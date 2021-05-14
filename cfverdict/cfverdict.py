@@ -49,7 +49,7 @@ def get_rank_rating(user):
 def get_last_verdict(user):
     try:
         r = requests.get('http://codeforces.com/api/user.status?' +
-                'handle={}&from=1&count=1'.format(user))
+                'handle={}&from=1&count=1'.format(user), timeout=10)
         js = r.json()
         if 'status' not in js or js['status'] != 'OK':
             return False, 0, 0, 0, 0, 0, 0, 0
@@ -91,8 +91,8 @@ def run():
         got, id_, verdict_, time_, memory_, passedTestCount_, contestId_, problemIndex_  = get_last_verdict(username)
 
         if (got == False):
-            print('\033[91;1m Some error occurred\033[0m')
-            time.sleep(1)
+            print('\033[91;1m Some error occurred. Trying again ...\033[0m')
+            time.sleep(5)
             continue
         if id_ != last_id:
             os.system('clear')
