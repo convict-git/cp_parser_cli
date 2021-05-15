@@ -19,15 +19,17 @@ FyeBbl="$Nm\e[1;40;38;5;202m"
 FbrBbl="$Nm\e[1;40;38;5;136m"
 FblBbr="$Nm\e[1;30;48;5;136m"
 Head="$Nm\e[1;48;5;237m"
-INPUT_NAME=input                    #the input filename string
-OUTPUT_NAME=my_output               #the output filename string
-REALOUTPUT_NAME=output              #the real output filename string
+INPUT=input                    #the input filename string
+OUTPUT=my_output               #the output filename string
+REALOUTPUT=output              #the real output filename string
 FILE=$1
 echo "file type is ${FILE##*.}"
 RUN_VAR=""
+CHECKER_RUN_VAR="./checker.out"
 flag=0
 testcnt=0
-for test_file in $INPUT_NAME*
+check=0
+for test_file in $INPUT*
 do testcnt=$((testcnt+1)); done
 declare -a LogVarArray=( $(for ((i=0; i <=$((testcnt)); i++)); do echo 0; done) )
 
@@ -76,6 +78,18 @@ elif [ "${FILE##*.}" = "hs" ]; then # haskell file
 	fi
 fi
 
+if [ -f "checker.cpp" ]; then
+	check=1
+	echo -e "\e[1mChecker found. Compiling Checker... $Nm"
+	if g++ -std=gnu++17 -Wall -Wextra -Wshadow -Wlogical-op -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -fsanitize=signed-integer-overflow -fsanitize=bounds -DONLINE_JUDGE -DCONVICTION -O2 checker.cpp -o checker.out; then
+		echo -e "\e[38;5;34m\e[1mChecker compiled Successful!$Nm"
+	else
+		echo -e "\e[91m\e[1mChecker couldn't be compiled!$Nm";
+		read -n 1
+		exit
+	fi
+fi
+
 if [ "$flag" = "0" ]; then # Check if compilation failed
 	echo -e "\e[91m\e[1mCompilation Error!$Nm";
 	read -n 1
@@ -97,41 +111,41 @@ then
 		echo -e "$Head               Input File                   $Nm"
 		echo -e "$FbrBbl▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm$Nm"
 		echo -e "$Nm\e[1m"
-		let var=($(wc -c < $INPUT_NAME$test_case))
+		let var=($(wc -c < $INPUT$test_case))
 		if [ "$var" -gt 800 ] ; then
-			# sed -n 1,10p $INPUT_NAME$test_case
-			head -c 800 $INPUT_NAME$test_case
+			# sed -n 1,10p $INPUT$test_case
+			head -c 800 $INPUT$test_case
 			echo -e "..."
 		else
-			cat $INPUT_NAME$test_case
+			cat $INPUT$test_case
 		fi
 		echo -e "\n$Head             Expected Output                $Nm"
 		echo -e "$FbrBbl▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm$Nm"
 		echo -e "$Nm\e[1m"
-		let var=($(wc -c < $REALOUTPUT_NAME$test_case))
+		let var=($(wc -c < $REALOUTPUT$test_case))
 		if [ "$var" -gt 800 ] ; then
-			# sed -n 1,10p $REALOUTPUT_NAME$test_case
-			head -c 800 $REALOUTPUT_NAME$test_case
+			# sed -n 1,10p $REALOUTPUT$test_case
+			head -c 800 $REALOUTPUT$test_case
 			echo -e "..."
 		else
-			cat $REALOUTPUT_NAME$test_case
+			cat $REALOUTPUT$test_case
 		fi
 		echo -e "\n$Head               Output File                  $Nm"
-		if timeout $2 /usr/bin/time --output="log" --format="%es, %Mkb" $RUN_VAR < $INPUT_NAME$test_case > $OUTPUT_NAME$test_case ; then                                 #If program runs in specified runtime
+		if timeout $2 /usr/bin/time --output="log" --format="%es, %Mkb" $RUN_VAR < $INPUT$test_case > $OUTPUT$test_case ; then                                 #If program runs in specified runtime
 			echo -e "$FbrBbl▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm$Nm"
 			LogVarArray[$((test_case))]="$(<log)"
-			let var=($(wc -c < $OUTPUT_NAME$test_case))
+			let var=($(wc -c < $OUTPUT$test_case))
 			if [ "$var" -gt 800 ] ; then
-				# sed -n 1,10p $OUTPUT_NAME$test_case
-				head -c 800 $OUTPUT_NAME$test_case
+				# sed -n 1,10p $OUTPUT$test_case
+				head -c 800 $OUTPUT$test_case
 				echo -e "..."
 			else
-				cat $OUTPUT_NAME$test_case
+				cat $OUTPUT$test_case
 			fi
 		else                            #otherwise TLE
 			LogVarArray[$((test_case))]="Allowed 3s"
 			echo -e "\t$FrdBbl Time Limit Exceeded! $Nm \e[1mAllowed : $2s$Nm"
-			echo "TLE" > $OUTPUT_NAME$test_case        #mark for tle(used in verdict see below)
+			echo "TLE" > $OUTPUT$test_case        #mark for tle(used in verdict see below)
 		fi
 	done
 	if [ -f "output1" ]; then         #if expected output files present then do diff to compare
@@ -141,20 +155,34 @@ then
 		echo -e "$FbrBbl▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\n"
 		for ((test_case=1; test_case<=testcnt; test_case++))
 		do
-			# i=$((${#INPUT_NAME}))
+			# i=$((${#INPUT}))
 			# test_case=$((${test_file:$i}))     #get the index of input file
-			if grep -Fxq "TLE" $OUTPUT_NAME$test_case; then    #checks for the TLE mark (see above) ##TODO need to find a better way
+			if grep -Fxq "TLE" $OUTPUT$test_case; then    #checks for the TLE mark (see above) ##TODO need to find a better way
 				echo -e " $FblBye $Nm$FyeBbl Sample test $test_case $FblBye  Time Limit   $FyeBbl ${LogVarArray[$(($test_case))]} ✗ $Nm"
 				echo -e "$FyeBbl ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\e[1m"
-			elif diff --brief --ignore-trailing-space $REALOUTPUT_NAME$test_case $OUTPUT_NAME$test_case >> errlg; then  #do a diff on output and my_output
+				continue
+			fi
+			if [ "$check" == "0" ] && diff --brief --ignore-trailing-space $REALOUTPUT$test_case $OUTPUT$test_case >> errlg; then  #do a diff on output and my_output
 				# echo -e "\e[1m\e[38;5;34m\tSample test $test_case: Accepted$Nm"
 				echo -e " $FblBgr $FgrBbl Sample test $test_case $FblBgr    Accepted   $FgrBbl ${LogVarArray[$(($test_case))]} ✓ $Nm"
 				echo -e "$FgrBbl ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\e[1m"
 				rm -rf errlg
-			else                          #if it isn't tle or accepted then wrong answer. ##TODO store the memory used and check for memory limit
-				echo -e " $FblBrd $Nm$FrdBbl Sample test $test_case $FblBrd  Wrong Answer $FrdBbl ${LogVarArray[$(($test_case))]} ✗ $Nm"
-				echo -e "$FrdBbl ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\e[1m"
+				continue
 			fi
+			if [ "$check" == "1" ]; then
+				cat $INPUT$test_case $OUTPUT$test_case > chkinp
+
+				if timeout 10 $CHECKER_RUN_VAR < chkinp ; then     
+					echo -e " $FblBgr $FgrBbl Sample test $test_case $FblBgr    AC (Chk)   $FgrBbl ${LogVarArray[$(($test_case))]} ✓ $Nm"
+					echo -e "$FgrBbl ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\e[1m"
+					rm -rf chkinp
+					continue
+				fi
+				rm -rf chkinp
+			fi
+			#if it isn't tle or accepted then wrong answer. ##TODO store the memory used and check for memory limit
+			echo -e " $FblBrd $Nm$FrdBbl Sample test $test_case $FblBrd  WA (Chk) $FrdBbl ${LogVarArray[$(($test_case))]} ✗ $Nm"
+			echo -e "$FrdBbl ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\e[1m"
 		done
 	fi
 
@@ -165,5 +193,5 @@ else
 	echo -e "____________________________________________"
 fi
 
-rm -rf log
+rm -rf log checker.out
 read -n 1
