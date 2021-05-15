@@ -15,19 +15,37 @@
 rm -rf a.out
 rm -rf gen.out
 rm -rf tester.out
-if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -Wconversion -Wshift-overflow=2 -Wduplicated-cond -fsanitize=signed-integer-overflow -fsanitize=bounds -O2 $1; then
+check=0
+
+if [ -f "checker.cpp" ]; then
+	check=1
+	echo -e "\e[1mChecker found. Compiling Checker... $Nm"
+	if g++ -std=gnu++17 -Wall -Wextra -Wshadow -Wlogical-op -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -fsanitize=signed-integer-overflow -fsanitize=bounds -DONLINE_JUDGE -DCONVICTION -O2 checker.cpp -o checker.out; then
+		echo -e "\e[38;5;34m\e[1mChecker compiled Successful!$Nm"
+	else
+		read -n 1
+		exit
+   fi
+else
+	echo -e "\e[1mTester found. Compiling Tester... $Nm"
+   if g++ -std=gnu++17 -Wall -g -Wextra -Wshadow -Wlogical-op -Wfloat-equal -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -DONLINE_JUDGE -fsanitize=bounds -O2 tester.cpp -o tester.out; then
+      echo -e "\e[1m\e[32mTester compiled successfully...\e[0m"
+   else
+		read -n 1
+		exit
+   fi
+fi
+
+if g++ -std=gnu++17 -Wall -g -Wextra -Wshadow -Wlogical-op -Wfloat-equal -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -DONLINE_JUDGE -fsanitize=bounds -O2 $1; then
 	echo -e "\e[1m\e[32mSource compiled successfully...\e[0m"
 else
-	exit
+		read -n 1
+		exit
 fi
-if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -fsanitize=bounds -O2 gen.cpp -o gen.out; then
+if g++ -std=gnu++17 -Wall -g -Wextra -Wshadow -Wlogical-op -Wfloat-equal -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -DONLINE_JUDGE -fsanitize=bounds -O2 gen.cpp -o gen.out; then
 	echo -e "\e[1m\e[32mGenerator compiled successfully...\e[0m"
 else
-	exit
-fi
-if g++ -std=gnu++14 -Wall -g -Wextra -Wshadow -Wfloat-equal -Wconversion -Wshift-overflow=2 -Wduplicated-cond -fsanitize=signed-integer-overflow -fsanitize=bounds -O2 tester.cpp -o tester.out; then
-	echo -e "\e[1m\e[32mTester compiled successfully...\e[0m"
-else
+   read -n 1
 	exit
 fi
 sleep 1
@@ -35,53 +53,68 @@ sleep 1
 INPUT=input
 OUTPUT=my_output
 EXPECTED=output
-test_case=1
-while [ -f $INPUT$test_case ]
-do
-   test_case=$((test_case + 1))
-done
+test_case=0
+for test_file in $INPUT*
+do test_case=$((test_case+1)); done
 
+test_case=$((test_case+1)) # the new one
 
 for ((i = 1; ; ++i)); do
-	./gen.out $i > $INPUT$test_case
-	if timeout 3 /usr/bin/time --format="  (%e sec, %M kb)" 2> time_err ./a.out < $INPUT$test_case > $OUTPUT$test_case ; then
-		./tester.out < $INPUT$test_case  > $EXPECTED$test_case
-		if diff --brief --ignore-trailing-space $OUTPUT$test_case $EXPECTED$test_case >> errlg; then  #do a diff on output and my_output
-			echo -en "\e[1m\e[32mSample test $i: Accepted\e[0m"
-         cat time_err
-			rm -rf errlg
-		else
+   let ok=0
+   touch tmp$INPUT$test_case tmp$OUTPUT$test_case tmp$EXPECTED$test_case
+	./gen.out $i > tmp$INPUT$test_case
+   if timeout 3 /usr/bin/time --format="  (%e sec, %M kb)" 2> time_err ./a.out < tmp$INPUT$test_case > tmp$OUTPUT$test_case ; then
+      if [ "$check" == "1" ]; then
+         cat tmp$INPUT$test_case tmp$OUTPUT$test_case > chkinp
+
+         if timeout 30 $CHECKER_RUN_VAR < chkinp ; then
+            echo -en "\e[1m\e[32mSample test $i: Accepted (chk) \e[0m"
+            rm -rf chkinp
+            ok=1
+         fi
+      else
+         ./tester.out < tmp$INPUT$test_case  > tmp$EXPECTED$test_case
+         if diff --brief --ignore-trailing-space tmp$OUTPUT$test_case tmp$EXPECTED$test_case >> errlg; then  #do a diff on output and my_output
+            echo -en "\e[1m\e[32mSample test $i: Accepted \e[0m"
+            cat time_err
+            rm -rf errlg
+            ok=1
+         fi
+      fi
+      if [ "$ok" == "0" ]; then
 			echo -en "\e[1m\e[31mSample test $i: Wrong Answer\e[0m"
          cat time_err
          echo -e "\nINPUT : "
-			cat $INPUT$test_case
+			cat tmp$INPUT$test_case
          echo -e " "
          echo -e "EXPECTED : "
-			cat $EXPECTED$test_case
+			cat tmp$EXPECTED$test_case
          echo -e " "
          echo -e "OUTPUT : "
-			cat $OUTPUT$test_case
+			cat tmp$OUTPUT$test_case
 
-         echo
          read new_test_case
          echo -en "Do you want to add this test case? (y/n): "
          if [ "$new_test_case" = "y" ]; then
             echo "New test case added: input$test_case"
-            rm -rf time_err
+            mv tmp$INPUT$test_case $INPUT$test_case
+            mv tmp$OUTPUT$test_case $OUTPUT$test_case
+            mv tmp$EXPECTED$test_case $EXPECTED$test_case
+            rm -rf time_err tmp$INPUT$test_case tmp$OUTPUT$test_case tmp$EXPECTED$test_case tester.out gen.out checker.out
+            read -n 1
             exit
          fi
-         rm -rf $INPUT$test_case $EXPECTED$test_case $OUTPUT$test_case time_err
+         rm -rf time_err tmp$INPUT$test_case tmp$OUTPUT$test_case tmp$EXPECTED$test_case tester.out gen.out checker.out
+         read -n 1
 			exit
 		fi
 	else
 		echo -en "\e[91m\e[1mSample test $i: Time Limit Exceeded! \e[0mAllowed : 1s\e[0m"
       cat time_err
 		cat $INPUT$test_case
-      rm -rf $INPUT$test_case $EXPECTED$test_case $OUTPUT$test_case time_err
+      rm -rf $INPUT$test_case $EXPECTED$test_case $OUTPUT$test_case time_err tester.out gen.out checker.out
+      read -n 1
 		exit
 	fi
 done
 
-rm -rf gen.out
-rm -rf tester.out
-read -n 1
