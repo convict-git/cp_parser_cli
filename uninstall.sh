@@ -2,7 +2,6 @@
 
 echo -e "Removing all scripts from /usr/bin and removing the config file..."
 if sudo rm -rfv /usr/bin/cp-parse &&
-   sudo rm -rfv /usr/bin/cp-compile &&
    sudo rm -rfv /usr/bin/cp-random &&
    sudo rm -rfv /usr/bin/cp-tester &&
    sudo rm -rfv /usr/bin/cp-hcscript &&

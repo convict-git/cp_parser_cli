@@ -3,7 +3,6 @@
 echo -e "Copying all scripts and parser to /usr/bin"
 if
    sudo cp -v ./bin/cp-parse /usr/bin/cp-parse
-   sudo cp -v ./scripts/cp-compile /usr/bin/cp-compile
    sudo cp -v ./scripts/cp-random /usr/bin/cp-random
    sudo cp -v ./scripts/cp-tester /usr/bin/cp-tester
    sudo cp -v ./scripts/cp-hcscript /usr/bin/cp-hcscript
@@ -17,7 +16,6 @@ fi
 echo -e "Giving executable permissions"
 if
    sudo chmod +x /usr/bin/cp-parse
-   sudo chmod +x /usr/bin/cp-compile
    sudo chmod +x /usr/bin/cp-random
    sudo chmod +x /usr/bin/cp-tester
    sudo chmod +x /usr/bin/cp-hcscript
