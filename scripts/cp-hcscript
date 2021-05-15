@@ -115,8 +115,7 @@ then
 
       /usr/bin/time --format="  (took %e sec)" ./$SRC_EXEC < $INPUTS_DIR/input$t > $OUTPUTS_DIR/output$t
       ## NOTE That input to tester is given as "input" + newline + "output"
-      TEST_INPUT="$(cat $INPUTS_DIR/input$t)"$'\n'"$(cat $OUTPUTS_DIR/output$t)"
-      echo $TEST_INPUT > temp
+      cat $INPUTS_DIR/input$t $OUTPUTS_DIR/output$t > temp
 
       NEW_SCORE=$($TESTER_EXEC < temp)     # score for the current solution
       OLD_SCORE=$(cat $SCORES_DIR/score$t) # old best score
