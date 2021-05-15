@@ -53,6 +53,7 @@ sleep 1
 INPUT=input
 OUTPUT=my_output
 EXPECTED=output
+CHECKER_RUN_VAR="./checker.out"
 test_case=0
 for test_file in $INPUT*
 do test_case=$((test_case+1)); done
@@ -68,21 +69,21 @@ for ((i = 1; ; ++i)); do
          cat tmp$INPUT$test_case tmp$OUTPUT$test_case > chkinp
 
          if timeout 30 $CHECKER_RUN_VAR < chkinp ; then
-            echo -en "\e[1m\e[32mSample test $i: Accepted (chk) \e[0m"
+            echo -en "\e[1m\e[32mSample test $i: Accepted (chk) \e[0m\n"
             rm -rf chkinp
             ok=1
          fi
       else
          ./tester.out < tmp$INPUT$test_case  > tmp$EXPECTED$test_case
          if diff --brief --ignore-trailing-space tmp$OUTPUT$test_case tmp$EXPECTED$test_case >> errlg; then  #do a diff on output and my_output
-            echo -en "\e[1m\e[32mSample test $i: Accepted \e[0m"
+            echo -en "\e[1m\e[32mSample test $i: Accepted \e[0m\n"
             cat time_err
             rm -rf errlg
             ok=1
          fi
       fi
       if [ "$ok" == "0" ]; then
-			echo -en "\e[1m\e[31mSample test $i: Wrong Answer\e[0m"
+			echo -en "\e[1m\e[31mSample test $i: Wrong Answer\e[0m\n"
          cat time_err
          echo -e "\nINPUT : "
 			cat tmp$INPUT$test_case
@@ -109,7 +110,7 @@ for ((i = 1; ; ++i)); do
 			exit
 		fi
 	else
-		echo -en "\e[91m\e[1mSample test $i: Time Limit Exceeded! \e[0mAllowed : 1s\e[0m"
+		echo -en "\e[91m\e[1mSample test $i: Time Limit Exceeded! \e[0mAllowed : 1s\e[0m\n"
       cat time_err
 		cat $INPUT$test_case
       rm -rf $INPUT$test_case $EXPECTED$test_case $OUTPUT$test_case time_err tester.out gen.out checker.out
