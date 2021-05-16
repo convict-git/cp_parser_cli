@@ -172,7 +172,7 @@ then
 			if [ "$check" == "1" ]; then
 				cat $INPUT$test_case $OUTPUT$test_case > chkinp
 
-				if timeout 10 $CHECKER_RUN_VAR < chkinp ; then     
+				if timeout 10 $CHECKER_RUN_VAR < chkinp ; then
 					echo -e " $FblBgr $FgrBbl Sample test $test_case $FblBgr    AC (Chk)   $FgrBbl ${LogVarArray[$(($test_case))]} ✓ $Nm"
 					echo -e "$FgrBbl ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\e[1m"
 					rm -rf chkinp
@@ -181,7 +181,7 @@ then
 				rm -rf chkinp
 			fi
 			#if it isn't tle or accepted then wrong answer. ##TODO store the memory used and check for memory limit
-			echo -e " $FblBrd $Nm$FrdBbl Sample test $test_case $FblBrd  WA (Chk) $FrdBbl ${LogVarArray[$(($test_case))]} ✗ $Nm"
+			echo -e " $FblBrd $Nm$FrdBbl Sample test $test_case $FblBrd  Wrong Answer $FrdBbl ${LogVarArray[$(($test_case))]} ✗ $Nm"
 			echo -e "$FrdBbl ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔$Nm\e[1m"
 		done
 	fi
