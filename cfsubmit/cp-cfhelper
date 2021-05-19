@@ -1,0 +1,80 @@
+#! /usr/bin/bash
+
+FILEP=$1
+FILE=$(basename "${FILEP}")
+DIR=$(dirname "${FILEP}")
+RUN_VAR="a.out"
+
+if [ -z "$DIR" ]; then
+   DIR=$(pwd)
+fi
+
+cd $DIR
+
+if [ ! -f "pconfig.json" ]; then
+   echo -e "pconfig.json not present... exiting"
+   exit
+fi
+
+compile () {
+   echo -e "\e[1m\e[91mCompiling with debugging flags ( -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 ) ... \e[0m"
+
+   if g++ -std=gnu++17 -Wall -g -Wextra -Wshadow -Wfloat-equal -fmax-errors=1 -Wconversion -Wshift-overflow=2 -Wduplicated-cond -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=signed-integer-overflow -fsanitize=bounds -O2 $FILE -o $RUN_VAR; then
+      echo -e "\e[38;5;34m\e[1mCompilation Successful!\e[0m\n"
+   else
+     echo -e "\e[91m\e[1mCompilation Error!\e[0m";
+     exit
+   fi
+}
+
+runtests() {
+   INPUT_NAME="input"
+   OUTPUT_NAME="my_output"
+   REALOUTPUT_NAME="output"
+   if [ -f "input1" ];                 #if input1 present that means there are input files
+   then
+      for test_file in $INPUT_NAME*     #iterations on all input files
+      do
+         i=$((${#INPUT_NAME}))
+         test_case=${test_file:$i}       #get the index from input file
+         if timeout 3 /usr/bin/time --format="\t(%M kb, %e sec)" ./$RUN_VAR < $INPUT_NAME$test_case > $OUTPUT_NAME$test_case ; then
+            if diff --brief --ignore-trailing-space $REALOUTPUT_NAME$test_case $OUTPUT_NAME$test_case >> errlg; then
+               echo -e "\e[1m\e[38;5;34m\tSample test $test_case: Accepted\e[0m"
+               rm -rf errlg
+            else
+               echo -e "\e[1m\e[31m\tSample test $test_case: Wrong Answer\e[0m"
+            fi
+         else                            #otherwise TLE
+            echo -e "\e[1m\e[31m\tSample test $test_case: Time Limit Exceeded\e[0m"
+         fi
+      done
+   fi
+}
+
+cfoperate() {
+   if [ "${1}" == "0" ]; then
+      echo -en "Do you want to submit? (y/n): "
+      read submit
+      if [ "$submit" != "n" ]; then
+         echo -e "\e[1m Submitting ... \e[0m"
+      else
+         exit
+      fi
+   elif [ "${1}" == "1" ]; then
+      echo -e "\e[1m Opening complete problem set ... \e[0m"
+   elif [ "${1}" == "2" ]; then
+      echo -e "\e[1m Opening problem ... \e[0m"
+   else
+      echo -e "Invalid argument"
+      exit
+   fi
+
+   echo "{\"filename\":\"$DIR/$FILE\", \"submit\":\"$1\", \"pconfig\":$(cat pconfig.json)}" | nc -uw 1 localhost 8889
+}
+
+if [ "${2}" == "0" ]; then
+   compile
+   runtests
+fi
+
+cfoperate $2
