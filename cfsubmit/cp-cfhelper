@@ -73,8 +73,12 @@ cfoperate() {
 }
 
 if [ "${2}" == "0" ]; then
-   compile
-   runtests
+   echo -en "\e[1mDo you want to do final checks (recommended)? (y/n): \e[0m"
+   read checks 
+   if [ "$checks" != "n" ]; then
+      compile
+      runtests
+   fi
 fi
 
 cfoperate $2
