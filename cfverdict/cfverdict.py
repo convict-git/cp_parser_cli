@@ -17,6 +17,13 @@ wait="←↖↑↗→↘↓↙"
 wait_idx=0
 last_verdict=""
 verdict_stack=""
+ratings = {0 : 'newbie', 1200 : 'pupil', 1400 : 'specialist', 1600 : 'expert',
+        1900 : 'candidate master', 2100 : 'master', 2300 : 'international master',
+        2400 : 'grandmaster', 2600 : 'international grandmaster',
+        3000 : 'legendary grandmaster'}
+
+ratings_list = list(ratings)
+
 colors = {'newbie':'\033[37m', 'pupil':'\033[32m', 'specialist':'\033[36m',
         'expert':'\033[34m', 'candidate master':'\033[35m', 'master':'\033[93m',
         'international master':'\033[93m', 'grandmaster':'\033[91m',
@@ -33,6 +40,25 @@ def safeget(dct, key):
         return None
     return dct
 
+def get_rating(user):
+    r = requests.get('https://codeforces.com/api/user.rating?handle={0}'.format(user))
+    js = r.json()
+    if 'status' not in js or js['status'] != 'OK':
+        raise ConnectionError('Cannot connect to codeforces!')
+    else:
+        try:
+            rating = js['result'][-1]['newRating']
+        except Exception as e: # rating is 0 (new user)
+            return 0
+        return rating
+
+def get_color(rating):
+    for i in range(len(ratings_list)-1):
+        if (rating >= ratings_list[i] and rating < ratings_list[i+1]):
+            lower_group = ratings_list[i]
+            break
+    return colors[ratings[lower_group]]
+
 def get_rank_rating(user):
     r = requests.get('https://codeforces.com/api/user.info?handles={0}'.format(user))
     js = r.json()
@@ -41,10 +67,21 @@ def get_rank_rating(user):
     else:
         try:
             rank = js['result'][0]['rank']
-            rating = js['result'][0]['maxRating']
+            mx_rating = js['result'][0]['maxRating']
+            rating = get_rating(user)
+
+            lower_group, diff = 0, 0
+            for i in range(len(ratings_list)-1):
+                if (rating >= ratings_list[i] and rating < ratings_list[i+1]):
+                    lower_group = ratings_list[i]
+                    diff = ratings_list[i+1] - rating
+                    break
+
         except Exception as e: # rating is 0 (new user)
+            print(repr(e))
+            exit(0)
             return '\033[1m{} Unrated 0\033[0m'.format(user)
-        return '\033[1m{} {} {} {}\033[0m'.format(colors[rank], user, rating, rank)
+        return '\033[1m{0} {1} [ {2}, {3} ] \n\t\t {4} max. {5} {6} (+{7} ↑)\033[0m'.format(colors[rank], user, rating, rank, get_color(mx_rating), mx_rating, get_color(rating+diff), diff)
 
 def get_last_verdict(user):
     try:
@@ -126,7 +163,7 @@ def run():
 
 signal(SIGINT, handler)
 if (len(sys.argv) == 1):
-    print('Please provide username as arugment (in quotes)')
+    print('Please provide username as argument (in quotes)')
 else:
     username=sys.argv[1]
     pretty_username=get_rank_rating(username)
